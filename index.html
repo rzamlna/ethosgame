@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>EthOS Drop Game with Click Sound</title>
+  <title>EthOS Tap Game - Final</title>
   <style>
     body {
       margin: 0;
@@ -10,6 +10,7 @@
       overflow: hidden;
       color: #0ff;
       font-family: 'Courier New', monospace;
+      -webkit-tap-highlight-color: transparent; /* hapus highlight di mobile */
     }
 
     #hud {
@@ -19,13 +20,14 @@
       font-size: 1.2em;
       z-index: 10;
       display: none;
+      user-select: none;
     }
 
     .logo {
       position: absolute;
       width: 80px;
       height: 80px;
-      background-image: url('ethos.jpg'); /* ganti dengan logo kamu */
+      background-image: url('https://raw.githubusercontent.com/ethos-vision/ethos-assets/main/ethos-logo.png'); /* ganti sesuai logo asli */
       background-size: 60%;
       background-repeat: no-repeat;
       background-position: center;
@@ -33,6 +35,7 @@
       animation: fall linear;
       border-radius: 50%;
       background-color: rgba(0, 255, 255, 0.05);
+      touch-action: manipulation; /* responsif di touch */
     }
 
     @keyframes fall {
@@ -55,6 +58,7 @@
       background-color: rgba(0, 255, 255, 0.05);
       backdrop-filter: blur(6px);
       border-radius: 12px;
+      user-select: none;
     }
 
     #start-screen {
@@ -69,6 +73,7 @@
       background-color: rgba(0, 255, 255, 0.05);
       border-radius: 12px;
       backdrop-filter: blur(6px);
+      user-select: none;
     }
 
     input, button {
@@ -79,6 +84,7 @@
       background: transparent;
       border: 1px solid #0ff;
       color: #0ff;
+      border-radius: 6px;
     }
     input::placeholder {
       color: #088;
@@ -90,7 +96,7 @@
 <div id="start-screen">
   Welcome to <strong>EthOS Drop</strong><br><br>
   Enter your username:<br>
-  <input id="username-input" placeholder="e.g. cryptocat" /><br>
+  <input id="username-input" placeholder="e.g. cryptocat" autocomplete="off" /><br>
   <button onclick="startGame()">Start</button>
 </div>
 
@@ -103,7 +109,8 @@
 <div id="game-over">
   ⏰ <strong>Game Over</strong><br><br>
   <span id="final-username"></span><br>
-  Final Score: <span id="final-score"></span>
+  Final Score: <span id="final-score"></span><br><br>
+  <button onclick="restartGame()">Play Again</button>
 </div>
 
 <audio id="click-sound" src="https://freesound.org/data/previews/475/475977_10224471-lq.mp3"></audio>
@@ -113,6 +120,7 @@
   let timeLeft = 60;
   let gameRunning = false;
   let spawnInterval;
+  let countdownInterval;
   let username = '';
 
   const hud = document.getElementById('hud');
@@ -130,11 +138,13 @@
 
     const logo = document.createElement('div');
     logo.classList.add('logo');
-    const duration = Math.random() * 4 + 4; // 4–8 detik
+    const duration = Math.random() * 4 + 4; // jatuh 4-8 detik
     logo.style.left = Math.random() * (window.innerWidth - 80) + 'px';
     logo.style.animationDuration = duration + 's';
 
-    logo.onclick = function () {
+    // Support click & tap mobile
+    logo.onclick = logo.ontouchstart = function (e) {
+      e.preventDefault(); // mencegah trigger ganda / scroll
       if (!gameRunning) return;
       score++;
       scoreEl.textContent = score;
@@ -154,22 +164,43 @@
     playerNameEl.textContent = username;
     startScreen.style.display = "none";
     hud.style.display = "block";
+    gameOverEl.style.display = "none";
+
+    score = 0;
+    timeLeft = 60;
+    scoreEl.textContent = score;
+    timeEl.textContent = timeLeft;
+
     gameRunning = true;
 
     spawnInterval = setInterval(spawnLogo, 1000);
 
-    const countdown = setInterval(() => {
+    countdownInterval = setInterval(() => {
       timeLeft--;
       timeEl.textContent = timeLeft;
       if (timeLeft <= 0) {
-        clearInterval(countdown);
-        clearInterval(spawnInterval);
-        gameRunning = false;
-        finalScoreEl.textContent = score;
-        finalUsernameEl.textContent = `Player: ${username}`;
-        gameOverEl.style.display = 'block';
+        endGame();
       }
     }, 1000);
+  }
+
+  function endGame() {
+    gameRunning = false;
+    clearInterval(spawnInterval);
+    clearInterval(countdownInterval);
+
+    finalScoreEl.textContent = score;
+    finalUsernameEl.textContent = `Player: ${username}`;
+    gameOverEl.style.display = 'block';
+    hud.style.display = 'none';
+
+    // Hapus semua logo yang masih muncul
+    document.querySelectorAll('.logo').forEach(el => el.remove());
+  }
+
+  function restartGame() {
+    startScreen.style.display = "block";
+    gameOverEl.style.display = "none";
   }
 </script>
 
