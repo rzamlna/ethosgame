@@ -16,22 +16,23 @@
       position: fixed;
       top: 10px;
       left: 10px;
-      font-size: 1.5em;
+      font-size: 1.2em;
       z-index: 10;
+      display: none;
     }
 
     .logo {
       position: absolute;
-      width: 80px; /* 👈 lebih besar area */
+      width: 80px;
       height: 80px;
-      background-image: url('ethos.jpg'); /* ganti ini */
+      background-image: url('ethos.jpg'); /* ganti dengan logo kamu */
       background-size: 60%;
       background-repeat: no-repeat;
       background-position: center;
       cursor: pointer;
       animation: fall linear;
-      border-radius: 50%; /* area klik membulat */
-      background-color: rgba(0, 255, 255, 0.05); /* agar area klik tak terlihat */
+      border-radius: 50%;
+      background-color: rgba(0, 255, 255, 0.05);
     }
 
     @keyframes fall {
@@ -55,54 +56,103 @@
       backdrop-filter: blur(6px);
       border-radius: 12px;
     }
+
+    #start-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-size: 1.5em;
+      padding: 20px;
+      border: 1px solid #0ff;
+      background-color: rgba(0, 255, 255, 0.05);
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    input, button {
+      font-family: inherit;
+      font-size: 1em;
+      padding: 6px 12px;
+      margin-top: 10px;
+      background: transparent;
+      border: 1px solid #0ff;
+      color: #0ff;
+    }
+    input::placeholder {
+      color: #088;
+    }
   </style>
 </head>
 <body>
-  <div id="hud">
-    Score: <span id="score">0</span><br>
-    Time: <span id="time">60</span>s
-  </div>
-  <div id="game-over">
-    ⏰ <strong>Game Over</strong><br><br>
-    Final Score: <span id="final-score"></span>
-  </div>
 
-  <script>
-    let score = 0;
-    let timeLeft = 60;
-    let gameRunning = true;
-    let spawnInterval;
+<div id="start-screen">
+  Welcome to <strong>EthOS Drop</strong><br><br>
+  Enter your username:<br>
+  <input id="username-input" placeholder="e.g. cryptocat" /><br>
+  <button onclick="startGame()">Start</button>
+</div>
 
-    const scoreEl = document.getElementById('score');
-    const timeEl = document.getElementById('time');
-    const gameOverEl = document.getElementById('game-over');
-    const finalScoreEl = document.getElementById('final-score');
+<div id="hud">
+  Player: <span id="player-name"></span><br>
+  Score: <span id="score">0</span><br>
+  Time: <span id="time">60</span>s
+</div>
 
-    function spawnLogo() {
+<div id="game-over">
+  ⏰ <strong>Game Over</strong><br><br>
+  <span id="final-username"></span><br>
+  Final Score: <span id="final-score"></span>
+</div>
+
+<script>
+  let score = 0;
+  let timeLeft = 60;
+  let gameRunning = false;
+  let spawnInterval;
+  let username = '';
+
+  const hud = document.getElementById('hud');
+  const scoreEl = document.getElementById('score');
+  const timeEl = document.getElementById('time');
+  const gameOverEl = document.getElementById('game-over');
+  const finalScoreEl = document.getElementById('final-score');
+  const finalUsernameEl = document.getElementById('final-username');
+  const playerNameEl = document.getElementById('player-name');
+  const startScreen = document.getElementById('start-screen');
+
+  function spawnLogo() {
+    if (!gameRunning) return;
+
+    const logo = document.createElement('div');
+    logo.classList.add('logo');
+    const duration = Math.random() * 4 + 4; // 4–8 detik
+    logo.style.left = Math.random() * (window.innerWidth - 80) + 'px';
+    logo.style.animationDuration = duration + 's';
+
+    logo.onclick = function () {
       if (!gameRunning) return;
+      score++;
+      scoreEl.textContent = score;
+      logo.remove();
+    };
 
-      const logo = document.createElement('div');
-      logo.classList.add('logo');
-      const duration = Math.random() * 4 + 4; // ⬇️ jatuh lebih lambat (4-8 detik)
-      logo.style.left = Math.random() * (window.innerWidth - 80) + 'px';
-      logo.style.animationDuration = duration + 's';
+    logo.addEventListener('animationend', () => logo.remove());
 
-      logo.onclick = function () {
-        if (!gameRunning) return;
-        score++;
-        scoreEl.textContent = score;
-        logo.remove();
-      };
+    document.body.appendChild(logo);
+  }
 
-      logo.addEventListener('animationend', () => logo.remove());
+  function startGame() {
+    const input = document.getElementById('username-input');
+    username = input.value.trim() || "Anonymous";
+    playerNameEl.textContent = username;
+    startScreen.style.display = "none";
+    hud.style.display = "block";
+    gameRunning = true;
 
-      document.body.appendChild(logo);
-    }
+    spawnInterval = setInterval(spawnLogo, 1000); // spawn per detik
 
-    // Start logo spawner
-    spawnInterval = setInterval(spawnLogo, 1000); // ⬇️ spawn lebih lambat
-
-    // Countdown timer
     const countdown = setInterval(() => {
       timeLeft--;
       timeEl.textContent = timeLeft;
@@ -111,9 +161,12 @@
         clearInterval(spawnInterval);
         gameRunning = false;
         finalScoreEl.textContent = score;
+        finalUsernameEl.textContent = `Player: ${username}`;
         gameOverEl.style.display = 'block';
       }
     }, 1000);
-  </script>
+  }
+</script>
+
 </body>
 </html>
