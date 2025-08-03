@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>EthOS Drop Game</title>
+  <title>EthOS Drop Game with Click Sound</title>
   <style>
     body {
       margin: 0;
@@ -106,6 +106,8 @@
   Final Score: <span id="final-score"></span>
 </div>
 
+<audio id="click-sound" src="https://freesound.org/data/previews/475/475977_10224471-lq.mp3"></audio>
+
 <script>
   let score = 0;
   let timeLeft = 60;
@@ -121,6 +123,7 @@
   const finalUsernameEl = document.getElementById('final-username');
   const playerNameEl = document.getElementById('player-name');
   const startScreen = document.getElementById('start-screen');
+  const clickSound = document.getElementById('click-sound');
 
   function spawnLogo() {
     if (!gameRunning) return;
@@ -135,6 +138,8 @@
       if (!gameRunning) return;
       score++;
       scoreEl.textContent = score;
+      clickSound.currentTime = 0;
+      clickSound.play();
       logo.remove();
     };
 
@@ -151,7 +156,7 @@
     hud.style.display = "block";
     gameRunning = true;
 
-    spawnInterval = setInterval(spawnLogo, 1000); // spawn per detik
+    spawnInterval = setInterval(spawnLogo, 1000);
 
     const countdown = setInterval(() => {
       timeLeft--;
