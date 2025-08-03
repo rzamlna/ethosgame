@@ -12,7 +12,7 @@
       font-family: 'Courier New', monospace;
     }
 
-    #score {
+    #hud {
       position: fixed;
       top: 10px;
       left: 10px;
@@ -24,7 +24,7 @@
       position: absolute;
       width: 60px;
       height: 60px;
-      background-image: url('ethos.jpg');
+      background-image: url('ethos.jpg'); /* Ganti dengan logo GitHub kamu */
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
@@ -36,36 +36,72 @@
       0% { transform: translateY(-100px); opacity: 1; }
       100% { transform: translateY(110vh); opacity: 0; }
     }
+
+    #game-over {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #f55;
+      font-size: 2em;
+      display: none;
+    }
   </style>
 </head>
 <body>
-<div id="score">Score: 0</div>
+  <div id="hud">
+    Score: <span id="score">0</span><br>
+    Time: <span id="time">60</span>s
+  </div>
+  <div id="game-over">⏰ Game Over!<br>Your Score: <span id="final-score"></span></div>
 
-<script>
-  let score = 0;
-  const scoreEl = document.getElementById('score');
+  <script>
+    let score = 0;
+    let timeLeft = 60;
+    let gameRunning = true;
+    let spawnInterval;
 
-  function spawnLogo() {
-    const logo = document.createElement('div');
-    logo.classList.add('logo');
-    const duration = Math.random() * 3 + 2; // 2–5 detik jatuh
-    logo.style.left = Math.random() * (window.innerWidth - 60) + 'px';
-    logo.style.animationDuration = duration + 's';
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const gameOverEl = document.getElementById('game-over');
+    const finalScoreEl = document.getElementById('final-score');
 
-    logo.onclick = function () {
-      score++;
-      scoreEl.textContent = 'Score: ' + score;
-      logo.remove(); // hilangkan logo setelah diklik
-    };
+    function spawnLogo() {
+      if (!gameRunning) return;
 
-    // Hapus logo jika selesai jatuh (tidak diklik)
-    logo.addEventListener('animationend', () => logo.remove());
+      const logo = document.createElement('div');
+      logo.classList.add('logo');
+      const duration = Math.random() * 3 + 2;
+      logo.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+      logo.style.animationDuration = duration + 's';
 
-    document.body.appendChild(logo);
-  }
+      logo.onclick = function () {
+        if (!gameRunning) return;
+        score++;
+        scoreEl.textContent = score;
+        logo.remove();
+      };
 
-  // Spawning loop
-  setInterval(spawnLogo, 800); // spawn setiap 0.8 detik
-</script>
+      logo.addEventListener('animationend', () => logo.remove());
+
+      document.body.appendChild(logo);
+    }
+
+    // Start logo spawner
+    spawnInterval = setInterval(spawnLogo, 800);
+
+    // Countdown timer
+    const countdown = setInterval(() => {
+      timeLeft--;
+      timeEl.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        clearInterval(spawnInterval);
+        gameRunning = false;
+        finalScoreEl.textContent = score;
+        gameOverEl.style.display = 'block';
+      }
+    }, 1000);
+  </script>
 </body>
 </html>
