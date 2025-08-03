@@ -22,14 +22,16 @@
 
     .logo {
       position: absolute;
-      width: 60px;
-      height: 60px;
-      background-image: url('ethos.jpg'); /* Ganti dengan logo GitHub kamu */
-      background-size: contain;
+      width: 80px; /* 👈 lebih besar area */
+      height: 80px;
+      background-image: url('ethos.jpg'); /* ganti ini */
+      background-size: 60%;
       background-repeat: no-repeat;
       background-position: center;
       cursor: pointer;
       animation: fall linear;
+      border-radius: 50%; /* area klik membulat */
+      background-color: rgba(0, 255, 255, 0.05); /* agar area klik tak terlihat */
     }
 
     @keyframes fall {
@@ -42,9 +44,16 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: #f55;
+      color: #0ff;
       font-size: 2em;
       display: none;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      border: 1px solid #0ff;
+      padding: 30px 40px;
+      background-color: rgba(0, 255, 255, 0.05);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
     }
   </style>
 </head>
@@ -53,7 +62,10 @@
     Score: <span id="score">0</span><br>
     Time: <span id="time">60</span>s
   </div>
-  <div id="game-over">⏰ Game Over!<br>Your Score: <span id="final-score"></span></div>
+  <div id="game-over">
+    ⏰ <strong>Game Over</strong><br><br>
+    Final Score: <span id="final-score"></span>
+  </div>
 
   <script>
     let score = 0;
@@ -71,8 +83,8 @@
 
       const logo = document.createElement('div');
       logo.classList.add('logo');
-      const duration = Math.random() * 3 + 2;
-      logo.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+      const duration = Math.random() * 4 + 4; // ⬇️ jatuh lebih lambat (4-8 detik)
+      logo.style.left = Math.random() * (window.innerWidth - 80) + 'px';
       logo.style.animationDuration = duration + 's';
 
       logo.onclick = function () {
@@ -88,7 +100,7 @@
     }
 
     // Start logo spawner
-    spawnInterval = setInterval(spawnLogo, 800);
+    spawnInterval = setInterval(spawnLogo, 1000); // ⬇️ spawn lebih lambat
 
     // Countdown timer
     const countdown = setInterval(() => {
