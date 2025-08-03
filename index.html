@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EthOS Tap Game</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #000;
+      color: #0ff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #logo {
+      width: 200px;
+      height: 200px;
+      background: url('https://ethos.vision/logo.png') no-repeat center center;
+      background-size: contain;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    #logo:active {
+      transform: scale(0.9);
+    }
+    #score {
+      margin-top: 20px;
+      font-size: 2em;
+    }
+    canvas {
+      position: fixed; top:0; left:0;
+      width:100%; height:100%;
+      z-index:-1;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div id="logo"></div>
+  <div id="score">Score: 0</div>
+
+  <script>
+    let score = 0;
+    const logo = document.getElementById('logo');
+    const scoreEl = document.getElementById('score');
+    logo.onclick = () => {
+      score++;
+      scoreEl.textContent = 'Score: ' + score;
+    };
+
+    // Background particle effect (bintang bergerak)
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = innerWidth; canvas.height = innerHeight;
+    let stars = Array(100).fill().map(_ => ({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*1.5,
+      d: Math.random()*0.5 + 0.2
+    }));
+    function draw() {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = '#0ff';
+      stars.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        ctx.fill();
+        s.y += s.d;
+        if (s.y > canvas.height) {
+          s.y = 0; s.x = Math.random()*canvas.width;
+        }
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
