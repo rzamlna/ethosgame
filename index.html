@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EthOS Tap Game - Final</title>
   <style>
     body {
@@ -10,7 +11,7 @@
       overflow: hidden;
       color: #0ff;
       font-family: 'Courier New', monospace;
-      -webkit-tap-highlight-color: transparent; /* hapus highlight di mobile */
+      -webkit-tap-highlight-color: transparent;
     }
 
     #hud {
@@ -27,7 +28,7 @@
       position: absolute;
       width: 80px;
       height: 80px;
-      background-image: url('ethos.jpg'); /* ganti sesuai logo asli */
+      background-image: url('ethos.jpg');
       background-size: 60%;
       background-repeat: no-repeat;
       background-position: center;
@@ -35,7 +36,7 @@
       animation: fall linear;
       border-radius: 50%;
       background-color: rgba(0, 255, 255, 0.05);
-      touch-action: manipulation; /* responsif di touch */
+      touch-action: manipulation;
     }
 
     @keyframes fall {
@@ -78,7 +79,7 @@
 
     input, button {
       font-family: inherit;
-      font-size: 1em;
+      font-size: 16px; /* minimal 16px untuk mencegah zoom di mobile */
       padding: 6px 12px;
       margin-top: 10px;
       background: transparent;
@@ -86,8 +87,27 @@
       color: #0ff;
       border-radius: 6px;
     }
+
     input::placeholder {
       color: #088;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 480px) {
+      .logo {
+        width: 100px;
+        height: 100px;
+        background-size: 70%;
+      }
+
+      #hud {
+        font-size: 1em;
+      }
+
+      #start-screen, #game-over {
+        font-size: 1.2em;
+        padding: 15px;
+      }
     }
   </style>
 </head>
@@ -132,19 +152,24 @@
   const playerNameEl = document.getElementById('player-name');
   const startScreen = document.getElementById('start-screen');
   const clickSound = document.getElementById('click-sound');
+  const usernameInput = document.getElementById('username-input');
+
+  window.onload = () => {
+    usernameInput.focus();
+    clickSound.load();
+  };
 
   function spawnLogo() {
     if (!gameRunning) return;
 
     const logo = document.createElement('div');
     logo.classList.add('logo');
-    const duration = Math.random() * 4 + 4; // jatuh 4-8 detik
+    const duration = Math.random() * 4 + 4;
     logo.style.left = Math.random() * (window.innerWidth - 80) + 'px';
     logo.style.animationDuration = duration + 's';
 
-    // Support click & tap mobile
     logo.onclick = logo.ontouchstart = function (e) {
-      e.preventDefault(); // mencegah trigger ganda / scroll
+      e.preventDefault();
       if (!gameRunning) return;
       score++;
       scoreEl.textContent = score;
@@ -159,8 +184,7 @@
   }
 
   function startGame() {
-    const input = document.getElementById('username-input');
-    username = input.value.trim() || "Anonymous";
+    username = usernameInput.value.trim() || "Anonymous";
     playerNameEl.textContent = username;
     startScreen.style.display = "none";
     hud.style.display = "block";
@@ -194,13 +218,13 @@
     gameOverEl.style.display = 'block';
     hud.style.display = 'none';
 
-    // Hapus semua logo yang masih muncul
     document.querySelectorAll('.logo').forEach(el => el.remove());
   }
 
   function restartGame() {
     startScreen.style.display = "block";
     gameOverEl.style.display = "none";
+    usernameInput.focus();
   }
 </script>
 
